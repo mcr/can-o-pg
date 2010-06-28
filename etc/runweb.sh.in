@@ -1,0 +1,19 @@
+#!/bin/sh
+
+ServerRoot=`pwd`
+PORT=$(etc/portnum.sh)
+WEBSERVER=${WEBSERVER-@WEBSERVER@}
+
+if [ ! -x ${WEBSERVER} ]; then
+	if [ -x /usr/sbin/httpd2 ]; then
+		WEBSERVER=/usr/sbin/httpd2
+	else
+		echo NO web server found at $WEBSERVER
+		exit 10
+	fi
+fi
+
+echo Starting web server on port $PORT
+$WEBSERVER -f $ServerRoot/etc/apache2.conf -d $ServerRoot -C 'User '$USER -C 'Listen 127.0.0.1:'$PORT
+
+
