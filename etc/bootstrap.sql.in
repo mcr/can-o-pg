@@ -1,0 +1,3 @@
+create database @APPNAME@;
+create user @APPNAME@ encrypted password '@DBPASSWORD';
+

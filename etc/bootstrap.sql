@@ -1,3 +1,3 @@
-create database ledgersmb;
-create user ledgersmb encrypted password 'ledger1';
+create database clientportal;
+create user clientportal encrypted password '@DBPASSWORD';
 
