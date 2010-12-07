@@ -1,0 +1,41 @@
+# MySQL (default setup).  Versions 4.1 and 5.0 are recommended.
+#
+# Install the MySQL driver:
+#   gem install mysql
+# On MacOS X:
+#   gem install mysql -- --include=/usr/local/lib
+# On Windows:
+#   There is no gem for Windows.  Install mysql.so from RubyForApache.
+#   http://rubyforge.org/projects/rubyforapache
+#
+# And be sure to use new-style password hashing:
+#   http://dev.mysql.com/doc/refman/5.0/en/old-client.html
+#development:
+#    adapter: sqlite3
+#    database: db/development.db
+
+development:
+  adapter: postgresql
+  database: @APPNAME@_development
+  username: @APPNAME@_development
+  password: @DBPASSWORD@
+  encoding: utf8
+  host: <%= RAILS_ROOT %>/@DBPATH@
+
+development_migration:
+  adapter: postgresql
+  database: @APPNAME@_development
+  username: @APPNAME@_development
+  password: @DBPASSWORD@
+  encoding: utf8
+  host: <%= RAILS_ROOT %>/@DBPATH@
+
+test:
+  adapter: postgresql
+  database: @APPNAME@_test
+  username: @APPNAME@_development
+  password: @DBPASSWORD@
+  encoding: utf8
+  host: <%= RAILS_ROOT %>/@DBPATH@
+
+
