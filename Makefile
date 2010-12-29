@@ -18,14 +18,14 @@ DATABASE=${APPNAME}_development
 
 all: ${DBPATH}/postmaster.pid etc/database.yml
 
-${TOP}/run/dirs:
+run/dirs:
 	mkdir -p run run/lock run/log run/log/apache2
 	touch run/dirs
 
-run/dbinit: ${TOP}/run/dirs etc/bootstrap.sql
+run/dbinit: run/dirs etc/bootstrap.sql
 	-[ -f ${DBPATH}/postmaster.pid ] && ${PG_CTL} -D ${DBPATH} stop
 	-rm -f ${DBPATH}/postmaster.pid
-	-rm -rf ${DBPATH}
+	-rm -rf ${DBCLUSTER}
 	mkdir -p ${DBCLUSTER} ${DBPATH}/log
 	chmod u=rwx,g-rx,o-rx ${DBPATH}
 	${INITDB} -D ${DBCLUSTER}
@@ -54,20 +54,24 @@ stop:
 
 etc/bootstrap.sql: etc/bootstrap.sql.in Makefile
 	sed \
-		-e 's,@APP@,${APPNAME},' \
-		-e 's,@APPNAME@,${APPNAME},' \
-		-e 's,@DBPATH@,${DBPATH},' \
-		-e 's,@DBPASSWORD@,${DBPASSWORD},' \
+		-e 's,@APP@,${APPNAME},g' \
+		-e 's,@APPNAME@,${APPNAME},g' \
+		-e 's,@DBPATH@,${DBPATH},g' \
+		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
 		etc/bootstrap.sql.in >etc/bootstrap.sql
 
 etc/database.yml: etc/database.yml.in Makefile
 	sed \
-		-e 's,@APP@,${APPNAME},' \
-		-e 's,@APPNAME@,${APPNAME},' \
-		-e 's,@DBPATH@,${DBPATH},' \
-		-e 's,@DBPASSWORD@,${DBPASSWORD},' \
+		-e 's,@APP@,${APPNAME},g' \
+		-e 's,@APPNAME@,${APPNAME},g' \
+		-e 's,@DBPATH@,${DBPATH},g' \
+		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
 		etc/database.yml.in >etc/database.yml
 	@echo You can enable by: cp etc/database.yml config/database.yml
+
+server: ${DBPATH}/postmaster.pid
+	cp etc/database.yml config/database.yml
+	script/rails server
 
 showconfig:
 	@echo POSTBIN ${POSTBIN}
