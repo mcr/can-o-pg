@@ -83,3 +83,8 @@ But, for now, just do:
 A proper config/database.yml in etc/database.yml created.  You may want to
 enable the line in the Makefile which copies it over.
 
+EXTRAS
+======
+make psql                - starts psql in the current database context.
+make INPUTFILE=foo load  - starts psql with "foo" on command line 
+                           populate the database.
