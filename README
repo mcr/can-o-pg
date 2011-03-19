@@ -7,8 +7,10 @@ Download
 Introduction
 ------------
 
-Can-o-PQ is a small set of scripts that configures a LAPP system
+Can-o-PG started as a small set of scripts that configures a LAPP system
 in the current directly.  (Linux Apache Postgresql PHP)
+
+This branch is now a Rails Vendor plugin.  
 
 I really dislike web projects that tell me to go reconfigure the running
 Postgresql daemon (and then give me no examples), and assume that I want to run
@@ -18,20 +20,24 @@ What I want is to turn web "applications" into normal source trees.
 This means that they run without root, they run in the current directory,
 and they do not require reconfiguring system daemons.
 
-Postgresql very easily will run with a custom Unix domain port, and
+PostgresQL very easily will run with a custom Unix domain port, and
 Apache will run unpriviledged on a custom port, it's just a question of
 plugging it all together.
 
-To start with this, create a new empty project.  I suggest that you
-fork my can-o-mysql project on github, and then check it out.  If you are
-including this into an existing project, set up the repo as a an additional
-remote:
-        git remote add canopg git@github.com:mcr/can-o-pg.git
+To use this version, you include it as a rails plugin.  You can do this 
+either with:
+        script/plugin install git://github.com/mcr/can-o-pg.git 
 
-and then merge it in:
-        git merge canopg/master
+I prefer to use git, and so I use git submodules:
+        git submodule add git://github.com/mcr/can-o-pg.git vendor/plugins/can-o-pg
 
-You likely want to delete this file from your project, or not, as you see fit. 
+Either way, then do, once:
+        make -f vendor/plugins/can-o-pg/Makefile install
+
+I suggest you commit the symlink that results, as git submodules does not
+do it for you.   A future version may be pure ruby Rakefile, and no shell
+scripts, but at this point the shell scripts are shared with django and
+PHP/LAPP applications as well.
 
 Then setup your "public" directory to point to the root of your HTML/PHP
 code.   For Rails projects, this is naturally where it is.   (You will see
@@ -42,7 +48,7 @@ project (like racktables, ledgersmb, etc..):
 
 1) a straight symlink pointing to another directory.
 2) copy the code to public
-3) git submodule add, to get your data there
+3) git submodule add, to get your data there    (common with django code)
 4) start new project in this format.
 
 If you go the (3) route, you should, after you create the .gitsubmodule

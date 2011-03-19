@@ -4,7 +4,8 @@
 
 APPNAME=$(shell basename $$(pwd))
 TOP=$(shell pwd)
-POSTBIN?=$(shell etc/findpgsql.sh )
+SCRIPTDIR=vendor/plugins/can-o-pg
+POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
 PSQL=${POSTBIN}/psql
 POSTMASTER=${POSTBIN}/postmaster
 INITDB=${POSTBIN}/initdb
@@ -16,7 +17,7 @@ DBPATH=${TOP}/run
 DBCLUSTER=${DBPATH}/dbcluster
 DATABASE=${APPNAME}_development
 
-all: ${DBPATH}/postmaster.pid etc/database.yml
+all: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
 
 install: 
 	ln -f -s vendor/plugins/can-o-pg/Makefile .
@@ -25,17 +26,17 @@ run/dirs:
 	mkdir -p run run/lock run/log run/log/apache2
 	touch run/dirs
 
-run/dbinit: run/dirs etc/bootstrap.sql
+run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	-[ -f ${DBPATH}/postmaster.pid ] && ${PG_CTL} -D ${DBPATH} stop
 	-rm -f ${DBPATH}/postmaster.pid
 	-rm -rf ${DBCLUSTER}
 	mkdir -p ${DBCLUSTER} ${DBPATH}/log
 	chmod u=rwx,g-rx,o-rx ${DBPATH}
 	${INITDB} -D ${DBCLUSTER}
-	cp etc/pg_hba.conf ${DBCLUSTER}
+	cp ${SCRIPTDIR}/pg_hba.conf ${DBCLUSTER}
 	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > run/log/postgresql.log 2>&1 &
 	sleep 5
-	${PSQL} -h ${DBPATH} -f etc/bootstrap.sql template1
+	${PSQL} -h ${DBPATH} -f ${SCRIPTDIR}/bootstrap.sql template1
 	${PG_CTL} -D ${DBCLUSTER} stop
 	touch run/dbinit
 
@@ -55,25 +56,25 @@ ${DBPATH}/postmaster.pid: run/dbinit #db_dump/restore.sql
 stop:
 	${PG_CTL} -D ${DBCLUSTER} stop
 
-etc/bootstrap.sql: etc/bootstrap.sql.in Makefile
+${SCRIPTDIR}/bootstrap.sql: ${SCRIPTDIR}/bootstrap.sql.in Makefile
 	sed \
 		-e 's,@APP@,${APPNAME},g' \
 		-e 's,@APPNAME@,${APPNAME},g' \
 		-e 's,@DBPATH@,${DBPATH},g' \
 		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
-		etc/bootstrap.sql.in >etc/bootstrap.sql
+		${SCRIPTDIR}/bootstrap.sql.in >${SCRIPTDIR}/bootstrap.sql
 
-etc/database.yml: etc/database.yml.in Makefile
+${SCRIPTDIR}/database.yml: ${SCRIPTDIR}/database.yml.in Makefile
 	sed \
 		-e 's,@APP@,${APPNAME},g' \
 		-e 's,@APPNAME@,${APPNAME},g' \
 		-e 's,@DBPATH@,${DBPATH},g' \
 		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
-		etc/database.yml.in >etc/database.yml
-	@echo You can enable by: cp etc/database.yml config/database.yml
+		${SCRIPTDIR}/database.yml.in >${SCRIPTDIR}/database.yml
+	@echo You can enable by: cp ${SCRIPTDIR}/database.yml config/database.yml
 
 server: ${DBPATH}/postmaster.pid
-	cp etc/database.yml config/database.yml
+	cp ${SCRIPTDIR}/database.yml config/database.yml
 	script/rails server
 
 showconfig:
