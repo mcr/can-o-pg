@@ -18,6 +18,9 @@ DATABASE=${APPNAME}_development
 
 all: ${DBPATH}/postmaster.pid etc/database.yml
 
+install: 
+	ln -f -s vendor/plugins/can-o-pg/Makefile .
+
 run/dirs:
 	mkdir -p run run/lock run/log run/log/apache2
 	touch run/dirs
