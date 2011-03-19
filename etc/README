@@ -10,6 +10,9 @@ Introduction
 Can-o-PQ is a small set of scripts that configures a LAPP system
 in the current directly.  (Linux Apache Postgresql PHP)
 
+This is the last version that is to be merged.  Future versions are
+on the branch "plugin" and are designed to be used a a vendor plugin.
+
 I really dislike web projects that tell me to go reconfigure the running
 Postgresql daemon (and then give me no examples), and assume that I want to run
 everything, even during testing, as a system process.
