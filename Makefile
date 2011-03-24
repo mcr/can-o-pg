@@ -16,6 +16,7 @@ DBPASSWORD=baesheDaic5OhGh2
 DBPATH=${TOP}/run
 DBCLUSTER=${DBPATH}/dbcluster
 DATABASE=${APPNAME}_development
+export DATABASE
 
 all: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
 
@@ -44,6 +45,7 @@ psql:
 	${PSQL} -h ${TOP}/run $${DATABASE-template1}
 
 load:
+	echo LOADING to database $${DATABASE-template1}
 	${PSQL} -h ${TOP}/run $${DATABASE-template1} -f $${INPUTFILE}
 
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
