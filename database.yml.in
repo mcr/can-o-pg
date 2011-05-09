@@ -20,7 +20,7 @@ development:
   username: @APPNAME@_development
   password: @DBPASSWORD@
   encoding: utf8
-  host: <%= RAILS_ROOT %>/run
+  host: <%= ::Rails.root.to_s %>/run
 
 development_migration:
   adapter: postgresql
@@ -28,7 +28,7 @@ development_migration:
   username: @APPNAME@_development
   password: @DBPASSWORD@
   encoding: utf8
-  host: <%= RAILS_ROOT %>/run
+  host: <%= ::Rails.root.to_s %>/run
 
 test:
   adapter: postgresql
@@ -36,6 +36,6 @@ test:
   username: @APPNAME@_development
   password: @DBPASSWORD@
   encoding: utf8
-  host: <%= RAILS_ROOT %>/run
+  host: <%= ::Rails.root.to_s %>/run
 
 
