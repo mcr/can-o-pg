@@ -1,6 +1,6 @@
-create database @APPNAME@_development owner @APPNAME@_development;
-create database @APPNAME@_test owner @APPNAME@_development;
+create database @APPNAME@_development;
+create database @APPNAME@_test;
 create user @APPNAME@_development encrypted password '@DBPASSWORD@';
-alter role @APPNAME@_test with createdb;
+alter role @APPNAME@_development with createdb;
 alter database @APPNAME@_test OWNER TO @APPNAME@_development;
 
