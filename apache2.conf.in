@@ -95,11 +95,11 @@ LoadModule php5_module @PHP5_MODDIR@/libphp5.so
 <IfModule mod_php5.c>
 	  AddType application/x-httpd-php .php .phtml .php3
 	  AddType application/x-httpd-php-source .phps
-	  PHPIniDir @ITERationSRCDIR@/etc 	
+	  PHPIniDir @SCRIPTDIR@/etc 	
 </IfModule>
 
 # Include all the end-user configurations:
-Include etc/apache2/httpd.conf
+#Include @SCRIPTDIR@/httpd.conf
 
 #Let's have some Icons, shall we?
 Alias /icons/ "/usr/share/apache2/icons/"
@@ -370,12 +370,12 @@ NameVirtualHost *
 	ServerAdmin webmaster@localhost
 	ServerName  localhost
 	
-	DocumentRoot @ITERationSRCDIR@/htdocs
+	DocumentRoot @TOPDIR@/public
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride None
 	</Directory>
-	<Directory @ITERationSRCDIR@/htdocs>
+	<Directory @TOPDIR@/public>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride AuthConfig Indexes
 		Order allow,deny
