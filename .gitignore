@@ -5,4 +5,4 @@ apache2.conf
 php.ini
 runweb.sh
 shutit.sh
-
+php/conf/config.inc.php

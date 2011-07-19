@@ -14,6 +14,16 @@ if [ ! -x ${WEBSERVER} ]; then
 	fi
 fi
 
+if [ -d /usr/share/phppgadmin ]; then
+    mkdir -p $ServerRoot/run/phppgadmin
+    (cd $ServerRoot/run/phppgadmin;
+        ln -f -s /usr/share/phppgadmin/* .
+        rm -f conf
+        mkdir conf
+        cp $ScriptDir/php/conf/config.inc.php conf )
+fi
+
+
 mkdir -p $ServerRoot/run/lock/apache2
 mkdir -p $ServerRoot/run/log/apache2
 

@@ -180,7 +180,7 @@ safe_mode_gid = Off
 ; including files from this directory and its subdirectories.
 ; (directory must also be in include_path or full path must
 ; be used when including)
-safe_mode_include_dir =        @ITERationSRCDIR@/php
+safe_mode_include_dir =        @TOPDIR@/php
 
 ; When safe_mode is on, only executables located in the safe_mode_exec_dir
 ; will be allowed to be executed via the exec family of functions.
@@ -423,7 +423,7 @@ default_mimetype = "text/html"
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; UNIX: "/path1:/path2"  
-include_path = ".:@ITERationSRCDIR@/php"
+include_path = ".:@TOPDIR@/php:@TOPDIR@/@SCRIPTDIR@/php"
 ;
 ; Windows: "\path1;\path2"
 ;include_path = ".;c:\php\includes"

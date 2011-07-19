@@ -47,7 +47,7 @@ run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	${INITDB} -D ${DBCLUSTER}
 	cp ${SCRIPTDIR}/pg_hba.conf ${DBCLUSTER}
 	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > run/log/postgresql.log 2>&1 &
-	sleep 5
+	sleep 10
 	${PSQL} -h ${DBPATH} -f ${SCRIPTDIR}/bootstrap.sql template1
 	${PG_CTL} -D ${DBCLUSTER} stop
 	touch run/dbinit
@@ -101,7 +101,7 @@ ${SCRIPTDIR}/database.yml: ${SCRIPTDIR}/database.yml.in Makefile
 		${SCRIPTDIR}/database.yml.in >${SCRIPTDIR}/database.yml
 	@echo You can enable by: cp ${SCRIPTDIR}/database.yml config/database.yml
 
-apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini 
+apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
 	${SCRIPTDIR}/runweb.sh
 
 apachestop: ${SCRIPTDIR}/shutit.sh  
