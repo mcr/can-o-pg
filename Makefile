@@ -2,7 +2,7 @@
 # ITERation project:  http://tbs-sct.ircan.gc.ca/projects/iteration
 #
 
-APPNAME=$(shell basename $$(pwd))
+APPNAME:=$(shell basename $$(pwd))
 TOP=$(shell pwd)
 SCRIPTDIR=vendor/plugins/can-o-pg
 POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
@@ -25,7 +25,7 @@ IPADDRESS=127.0.0.1
 MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime.types; elif [ -f /etc/mime.types ]; then echo /etc/mime.types; fi)
 SYSTEMURL=$(echo 'http://localhost:'${SYSTEMPORT}'/')
 
--include "can-o-pg.settings"
+-include can-o-pg.settings
 
 export LANG=C
 export LC_TIME=C
@@ -112,8 +112,6 @@ apachestop: ${SCRIPTDIR}/shutit.sh
 server: ${DBPATH}/postmaster.pid
 	cp ${SCRIPTDIR}/database.yml config/database.yml
 	script/rails server
-
--include can-o-pg.application
 
 showconfig:
 	@echo POSTBIN ${POSTBIN}
