@@ -25,6 +25,8 @@ IPADDRESS=127.0.0.1
 MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime.types; elif [ -f /etc/mime.types ]; then echo /etc/mime.types; fi)
 SYSTEMURL=$(echo 'http://localhost:'${SYSTEMPORT}'/')
 
+-include "can-o-pg.settings"
+
 export LANG=C
 export LC_TIME=C
 export DATABASE
@@ -110,6 +112,8 @@ apachestop: ${SCRIPTDIR}/shutit.sh
 server: ${DBPATH}/postmaster.pid
 	cp ${SCRIPTDIR}/database.yml config/database.yml
 	script/rails server
+
+-include can-o-pg.application
 
 showconfig:
 	@echo POSTBIN ${POSTBIN}

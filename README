@@ -56,6 +56,37 @@ and tests, and other directories you need for your testing skaffold,
 then create a new project for your foo project, "foo-skaffold".
 Updates from can-o-mysql can be applied with a git merge or git rebase.
 
+CONFIGURATION
+=============
+
+run "make showconfig" to see what the settings are, you should see something
+like: 
+        POSTBIN /usr/lib/postgresql/8.3/bin
+        APPNAME chapter13
+        DBPATH: /corp/projects/credil/nv/chapter13/run
+        DBPASSWORD: baesheDaic5OhGh2
+        SCRIPTDIR: vendor/plugins/can-o-pg
+        TOP: /corp/projects/credil/nv/chapter13
+        APACHE2_MODDIR: /usr/lib/apache2/modules
+        WEBSERVER: /usr/sbin/apache2
+        MIMETYPES: /etc/mime.types
+        PHP5_MODDIR:/usr/lib/apache2/modules
+
+If you need to override any of these values, you can use the file 
+"can-o-pg.settings" at the top level.  It is a makefile format file that will
+be included if it exists.
+
+
+APACHE
+======
+
+If you need Apache (and you do if you are doing PHP5 work), then just run
+"make apache" and and apache configuration will be created in run, and a copy
+of Apache will be started.   It will be started on a port number equal to 8000
+plus your uid.  This choice is stable per user, but permits multiple users 
+to work on a multiuser machine (this is common if you have windows programmers 
+using putty to a linux machine).
+
 New Projects
 ============
 
@@ -66,6 +97,15 @@ do.  All of your classes and the like go into the top-level php directory.
 If you need mocks or other code just for tests, then put them into test/php,
 which is on the php include path prior to php.
 
+PHPPGADMIN
+==========
+
+No doubt you will need to grovel the database by hand at times.
+phppgadmin is a very good tool. If you have a copy in /usr/share/phppgadmin,
+it will be linked into the apache config at /phppgadmin.  It is connected
+to the database by Unix domain socket.  You can use the identities created
+by the bootstrap.sql, such as application_development.
+
 
 USING IT
 ========
@@ -74,23 +114,28 @@ You will find a Makefile at the top-level.  I'd rather it was a Rakefile,
 but I use this code with multiple other things which are not rails. 
 (There is a branch of the code that supports Django, btw)
 
-You'll want to edit etc/botostrap.sql eventually.  For rails projects,
-you can just use migrations to populate the database, but other systems you'll
-want to include whatever schema creation code.  Also note the passwords which
-are in that file, they go into your config/database.yml or equivalent.
+You'll want to edit vendor/plugins/can-o-pg/bootstrap.sql.in eventually,
+and I ought to include another file as well.
+For rails projects, you can just use migrations to populate the database, but
+other systems you'll want to include whatever schema creation code.  Also
+note the passwords which  are in that file, they go into your
+config/database.yml or equivalent. 
 
-Open up the Makefile, and change APPNAME= if the name of the current directory
-is wrong.  
+Open up the can-o-pg.settings, and change APPNAME= if the name of the current
+directory is wrong.  
 
 But, for now, just do:
         make
-        cp etc/database.yml config/database.yml
+        cp vendor/plugins/can-o-pg/database.yml config/database.yml
 
-A proper config/database.yml in etc/database.yml created.  You may want to
-enable the line in the Makefile which copies it over.
+("make server" will do this for you)
 
 EXTRAS
 ======
 make psql                - starts psql in the current database context.
 make INPUTFILE=foo load  - starts psql with "foo" on command line 
                            populate the database.
+make apache
+make apachestop         - stop apache
+make stop               - shutdown database
+make showconfig         - show settings
