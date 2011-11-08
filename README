@@ -8,7 +8,7 @@ Introduction
 ------------
 
 Can-o-PG started as a small set of scripts that configures a LAPP system
-in the current directly.  (Linux Apache Postgresql PHP)
+in the current directory.  (Linux Apache Postgresql PHP)
 
 This branch is now a Rails Vendor plugin.  
 
