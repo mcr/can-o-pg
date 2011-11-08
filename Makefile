@@ -2,7 +2,7 @@
 # ITERation project:  http://tbs-sct.ircan.gc.ca/projects/iteration
 #
 
-APPNAME=$(shell basename $$(pwd))
+APPNAME:=$(shell basename $$(pwd))
 TOP=$(shell pwd)
 SCRIPTDIR=vendor/plugins/can-o-pg
 POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
@@ -16,6 +16,19 @@ DBPASSWORD=baesheDaic5OhGh2
 DBPATH=${TOP}/run
 DBCLUSTER=${DBPATH}/dbcluster
 DATABASE=${APPNAME}_development
+
+APACHE2_MODDIR=$(shell if [ -d /usr/lib/apache2/modules ]; then echo /usr/lib/apache2/modules; else echo WHERE IS APACHE; fi; )
+WEBSERVER=$(shell if [ -x /usr/sbin/httpd2 ]; then echo  /usr/sbin/httpd2; elif [ -x /usr/sbin/apache2 ]; then echo /usr/sbin/apache2; fi)
+PHP5_MODDIR=${APACHE2_MODDIR}
+SYSTEMPORT=$(./etc/portnum.sh )
+IPADDRESS=127.0.0.1
+MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime.types; elif [ -f /etc/mime.types ]; then echo /etc/mime.types; fi)
+SYSTEMURL=$(echo 'http://localhost:'${SYSTEMPORT}'/')
+
+-include can-o-pg.settings
+
+export LANG=C
+export LC_TIME=C
 export DATABASE
 
 all: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
@@ -36,7 +49,7 @@ run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	${INITDB} -D ${DBCLUSTER}
 	cp ${SCRIPTDIR}/pg_hba.conf ${DBCLUSTER}
 	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > run/log/postgresql.log 2>&1 &
-	sleep 5
+	sleep 10
 	${PSQL} -h ${DBPATH} -f ${SCRIPTDIR}/bootstrap.sql template1
 	${PG_CTL} -D ${DBCLUSTER} stop
 	touch run/dbinit
@@ -58,6 +71,21 @@ ${DBPATH}/postmaster.pid: run/dbinit #db_dump/restore.sql
 stop:
 	${PG_CTL} -D ${DBCLUSTER} stop
 
+${SCRIPTDIR}/%: ${SCRIPTDIR}/%.in Makefile
+	sed \
+		-e 's,@APP@,${APPNAME},g' \
+		-e 's,@APPNAME@,${APPNAME},g' \
+		-e 's,@DBPATH@,${DBPATH},g' \
+		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
+		-e 's,@SCRIPTDIR@,${SCRIPTDIR},g' \
+		-e 's,@TOPDIR@,'${TOP}',g' \
+	        -e 's,@APACHE2_MODDIR@,'${APACHE2_MODDIR}',g' \
+	        -e 's,@WEBSERVER@,'${WEBSERVER}',g' \
+	        -e 's,@MIMETYPES@,'${MIMETYPES}',g' \
+	        -e 's,@PHP5_MODDIR@,'${PHP5_MODDIR}',g' \
+		$< >$@ 
+	@if [ -x $< ]; then chmod +x $@; fi
+
 ${SCRIPTDIR}/bootstrap.sql: ${SCRIPTDIR}/bootstrap.sql.in Makefile
 	sed \
 		-e 's,@APP@,${APPNAME},g' \
@@ -75,6 +103,12 @@ ${SCRIPTDIR}/database.yml: ${SCRIPTDIR}/database.yml.in Makefile
 		${SCRIPTDIR}/database.yml.in >${SCRIPTDIR}/database.yml
 	@echo You can enable by: cp ${SCRIPTDIR}/database.yml config/database.yml
 
+apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
+	${SCRIPTDIR}/runweb.sh
+
+apachestop: ${SCRIPTDIR}/shutit.sh  
+	${SCRIPTDIR}/shutit.sh
+
 server: ${DBPATH}/postmaster.pid
 	cp ${SCRIPTDIR}/database.yml config/database.yml
 	script/rails server
@@ -82,7 +116,14 @@ server: ${DBPATH}/postmaster.pid
 showconfig:
 	@echo POSTBIN ${POSTBIN}
 	@echo APPNAME ${APPNAME}
-	@echo DBPATH  ${DBPATH}
+	@echo DBPATH: ${DBPATH}
+	@echo DBPASSWORD: ${DBPASSWORD}
+	@echo SCRIPTDIR:  ${SCRIPTDIR}
+	@echo TOP:        ${TOP}
+	@echo APACHE2_MODDIR: ${APACHE2_MODDIR}
+	@echo WEBSERVER:  ${WEBSERVER}
+	@echo MIMETYPES:  ${MIMETYPES}
+	@echo PHP5_MODDIR:${PHP5_MODDIR}
 
 
 

@@ -95,11 +95,27 @@ LoadModule php5_module @PHP5_MODDIR@/libphp5.so
 <IfModule mod_php5.c>
 	  AddType application/x-httpd-php .php .phtml .php3
 	  AddType application/x-httpd-php-source .phps
-	  PHPIniDir @ITERationSRCDIR@/etc 	
+	  PHPIniDir @SCRIPTDIR@/etc 	
 </IfModule>
 
 # Include all the end-user configurations:
-Include etc/apache2/httpd.conf
+#Include @SCRIPTDIR@/httpd.conf
+
+Alias /phppgadmin @TOPDIR@/run/phppgadmin/
+<Directory @TOPDIR@/run/phppgadmin/>
+  DirectoryIndex index.php
+  Options +FollowSymLinks
+  AllowOverride None
+  order deny,allow
+  deny from all
+  allow from 127.0.0.0/255.0.0.0 ::1/128
+  # allow from all
+  <IfModule mod_php5.c>
+    php_flag magic_quotes_gpc Off
+    php_flag track_vars On
+    php_value include_path .
+  </IfModule>
+</Directory>
 
 #Let's have some Icons, shall we?
 Alias /icons/ "/usr/share/apache2/icons/"
@@ -238,6 +254,24 @@ AddIcon /icons/blank.gif ^^BLANKICON^^
 #AddIcon /icons/dirsymlink.jpg ^^SYMDIR^^
 #AddIcon /icons/symlink.jpg ^^SYMLINK^^
 
+<IfModule mpm_prefork_module>
+    StartServers          1
+    MinSpareServers       1
+    MaxSpareServers      10
+    MaxClients          150
+    MaxRequestsPerChild   0
+</IfModule>
+
+<IfModule mpm_worker_module>
+    StartServers          1
+    MinSpareThreads       1
+    MaxSpareThreads      75 
+    ThreadLimit          64
+    ThreadsPerChild      25
+    MaxClients          150
+    MaxRequestsPerChild   0
+</IfModule>
+
 DefaultIcon /icons/unknown.gif
 
 ReadmeName README.html
@@ -370,12 +404,12 @@ NameVirtualHost *
 	ServerAdmin webmaster@localhost
 	ServerName  localhost
 	
-	DocumentRoot @ITERationSRCDIR@/htdocs
+	DocumentRoot @TOPDIR@/public
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride None
 	</Directory>
-	<Directory @ITERationSRCDIR@/htdocs>
+	<Directory @TOPDIR@/public>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride AuthConfig Indexes
 		Order allow,deny
