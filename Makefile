@@ -7,6 +7,7 @@ TOP=$(shell pwd)
 SCRIPTDIR=vendor/plugins/can-o-pg
 POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
 PSQL=${POSTBIN}/psql
+PG_DUMP=${POSTBIN}/pg_dump
 POSTMASTER=${POSTBIN}/postmaster
 INITDB=${POSTBIN}/initdb
 PG_CTL=${POSTBIN}/pg_ctl
@@ -60,6 +61,10 @@ psql:
 load:
 	echo LOADING to database $${DATABASE-template1}
 	${PSQL} -h ${TOP}/run $${DATABASE-template1} -f $${INPUTFILE}
+
+dump:
+	echo DUMPING to database $${OUTFILE-db/output.sql}
+	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${DATABASE} >$${OUTFILE-db/output.sql} 
 
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
 #	make dbrebuild
