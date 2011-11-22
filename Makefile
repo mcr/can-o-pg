@@ -47,7 +47,7 @@ run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	-rm -rf ${DBCLUSTER}
 	mkdir -p ${DBCLUSTER} ${DBPATH}/log
 	chmod u=rwx,g-rx,o-rx ${DBPATH}
-	${INITDB} -D ${DBCLUSTER}
+	${INITDB} ${ENCODING} -D ${DBCLUSTER}
 	cp ${SCRIPTDIR}/pg_hba.conf ${DBCLUSTER}
 	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > run/log/postgresql.log 2>&1 &
 	sleep 10
