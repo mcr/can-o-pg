@@ -55,7 +55,7 @@ run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	touch run/dbinit
 
 psql:
-	${PSQL} -h ${TOP}/run $${DATABASE-template1}
+	@${PSQL} -h ${TOP}/run $${PSQLUSER} $${DATABASE-template1}
 
 load:
 	echo LOADING to database $${DATABASE-template1}
@@ -103,6 +103,11 @@ ${SCRIPTDIR}/database.yml: ${SCRIPTDIR}/database.yml.in Makefile
 		${SCRIPTDIR}/database.yml.in >${SCRIPTDIR}/database.yml
 	@echo You can enable by: cp ${SCRIPTDIR}/database.yml config/database.yml
 
+clean:
+	@rm -f ${SCRIPTDIR}/database.yml ${SCRIPTDIR}/bootstrap.sql
+	@rm -f ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
+	@rm -f ${SCRIPTDIR}/shutit.sh  
+
 apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
 	${SCRIPTDIR}/runweb.sh
 
@@ -112,6 +117,9 @@ apachestop: ${SCRIPTDIR}/shutit.sh
 server: ${DBPATH}/postmaster.pid
 	cp ${SCRIPTDIR}/database.yml config/database.yml
 	script/rails server
+
+dbpath:
+	@echo ${DBPATH}
 
 showconfig:
 	@echo POSTBIN ${POSTBIN}
@@ -124,6 +132,7 @@ showconfig:
 	@echo WEBSERVER:  ${WEBSERVER}
 	@echo MIMETYPES:  ${MIMETYPES}
 	@echo PHP5_MODDIR:${PHP5_MODDIR}
+	@echo DATABASE:   ${DATABASE}
 
 
 
