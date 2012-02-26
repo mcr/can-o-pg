@@ -67,6 +67,12 @@ LoadModule php5_module @PHP5_MODDIR@/libphp5.so
 		LoadModule authz_host_module                  @APACHE2_MODDIR@/mod_authz_host.so
 	</IfModule>
 </IfModule>
+<IfModule !mod_env.c>
+	LoadModule env_module                   @APACHE2_MODDIR@/mod_env.so
+</IfModule>
+<IfModule !mod_cgi.c>
+	LoadModule cgi_module                   @APACHE2_MODDIR@/mod_cgi.so
+</IfModule>
 <IfModule !mod_alias.c>
 	LoadModule alias_module                   @APACHE2_MODDIR@/mod_alias.so
 </IfModule>
@@ -75,6 +81,9 @@ LoadModule php5_module @PHP5_MODDIR@/libphp5.so
 </IfModule>
 <IfModule !mod_include.c>
 	LoadModule include_module                 @APACHE2_MODDIR@/mod_include.so
+</IfModule>
+<IfModule !mod_rewrite.c>
+	LoadModule rewrite_module                 @APACHE2_MODDIR@/mod_rewrite.so
 </IfModule>
 <IfModule !mod_autoindex.c>
 	LoadModule autoindex_module               @APACHE2_MODDIR@/mod_autoindex.so
@@ -99,7 +108,7 @@ LoadModule php5_module @PHP5_MODDIR@/libphp5.so
 </IfModule>
 
 # Include all the end-user configurations:
-#Include @SCRIPTDIR@/httpd.conf
+#Include @TOP@/httpd.conf
 
 Alias /phppgadmin @TOPDIR@/run/phppgadmin/
 <Directory @TOPDIR@/run/phppgadmin/>
@@ -409,23 +418,6 @@ NameVirtualHost *
 		Options FollowSymLinks
 		AllowOverride None
 	</Directory>
-	<Directory @TOPDIR@/public>
-		Options Indexes FollowSymLinks MultiViews
-		AllowOverride AuthConfig Indexes
-		Order allow,deny
-		allow from all
-		# Uncomment this directive is you want to see apache2's
-		# default start page (in /apache2-default) when you go to /
-		#RedirectMatch ^/$ /apache2-default/
-	</Directory>
-
-	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
-	<Directory "/usr/lib/cgi-bin">
-		AllowOverride None
-		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
-		Order allow,deny
-		Allow from all
-	</Directory>
 
 	ErrorLog run/log/apache2/error.log
 
@@ -436,14 +428,7 @@ NameVirtualHost *
 	CustomLog run/log/apache2/access.log combined
 	ServerSignature On
 
-    Alias /doc/ "/usr/share/doc/"
-    <Directory "/usr/share/doc/">
-        Options Indexes MultiViews FollowSymLinks
-        AllowOverride None
-        Order deny,allow
-        Deny from all
-        Allow from 127.0.0.0/255.0.0.0 ::1/128
-    </Directory>
+        Include @TOPDIR@/httpd.conf
 
 </VirtualHost>
 

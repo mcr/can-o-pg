@@ -24,6 +24,18 @@ SYSTEMPORT=$(./etc/portnum.sh )
 IPADDRESS=127.0.0.1
 MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime.types; elif [ -f /etc/mime.types ]; then echo /etc/mime.types; fi)
 SYSTEMURL=$(echo 'http://localhost:'${SYSTEMPORT}'/')
+SEDFILE=sed \
+		-e 's,@APP@,${APPNAME},g' \
+		-e 's,@APPNAME@,${APPNAME},g' \
+		-e 's,@DBPATH@,${DBPATH},g' \
+		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
+		-e 's,@SCRIPTDIR@,${SCRIPTDIR},g' \
+		-e 's,@TOPDIR@,'${TOP}',g' \
+	        -e 's,@APACHE2_MODDIR@,'${APACHE2_MODDIR}',g' \
+	        -e 's,@WEBSERVER@,'${WEBSERVER}',g' \
+	        -e 's,@MIMETYPES@,'${MIMETYPES}',g' \
+	        -e 's,@PHP5_MODDIR@,'${PHP5_MODDIR}',g'
+
 
 -include can-o-pg.settings
 
@@ -72,18 +84,7 @@ stop:
 	${PG_CTL} -D ${DBCLUSTER} stop
 
 ${SCRIPTDIR}/%: ${SCRIPTDIR}/%.in Makefile
-	sed \
-		-e 's,@APP@,${APPNAME},g' \
-		-e 's,@APPNAME@,${APPNAME},g' \
-		-e 's,@DBPATH@,${DBPATH},g' \
-		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
-		-e 's,@SCRIPTDIR@,${SCRIPTDIR},g' \
-		-e 's,@TOPDIR@,'${TOP}',g' \
-	        -e 's,@APACHE2_MODDIR@,'${APACHE2_MODDIR}',g' \
-	        -e 's,@WEBSERVER@,'${WEBSERVER}',g' \
-	        -e 's,@MIMETYPES@,'${MIMETYPES}',g' \
-	        -e 's,@PHP5_MODDIR@,'${PHP5_MODDIR}',g' \
-		$< >$@ 
+	${SEDFILE} $< >$@
 	@if [ -x $< ]; then chmod +x $@; fi
 
 ${SCRIPTDIR}/bootstrap.sql: ${SCRIPTDIR}/bootstrap.sql.in Makefile
@@ -108,7 +109,7 @@ clean:
 	@rm -f ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
 	@rm -f ${SCRIPTDIR}/shutit.sh  
 
-apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
+apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php public
 	${SCRIPTDIR}/runweb.sh
 
 apachestop: ${SCRIPTDIR}/shutit.sh  
@@ -134,5 +135,7 @@ showconfig:
 	@echo PHP5_MODDIR:${PHP5_MODDIR}
 	@echo DATABASE:   ${DATABASE}
 
-
+httpd.conf:
+        # just make sure it exists.
+	touch httpd.conf
 
