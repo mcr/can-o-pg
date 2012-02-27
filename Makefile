@@ -11,7 +11,7 @@ POSTMASTER=${POSTBIN}/postmaster
 INITDB=${POSTBIN}/initdb
 PG_CTL=${POSTBIN}/pg_ctl
 TCPIP=-h ''
-# make up your own.
+# make up your own, put it in can-o-pg.settings
 DBPASSWORD=baesheDaic5OhGh2
 DBPATH=${TOP}/run
 DBCLUSTER=${DBPATH}/dbcluster
@@ -37,13 +37,13 @@ SEDFILE=sed \
 	        -e 's,@PHP5_MODDIR@,'${PHP5_MODDIR}',g'
 
 
--include can-o-pg.settings
-
 export LANG=C
 export LC_TIME=C
 export DATABASE
 
 all: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
+
+-include can-o-pg.settings
 
 install: 
 	ln -f -s vendor/plugins/can-o-pg/Makefile .
@@ -60,6 +60,7 @@ run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	chmod u=rwx,g-rx,o-rx ${DBPATH}
 	${INITDB} --encoding=utf8 -D ${DBCLUSTER}
 	cp ${SCRIPTDIR}/pg_hba.conf ${DBCLUSTER}
+	echo "superuser ${USER} postgres" >${DBCLUSTER}/pg_ident.conf
 	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > run/log/postgresql.log 2>&1 &
 	sleep 10
 	${PSQL} -h ${DBPATH} -f ${SCRIPTDIR}/bootstrap.sql template1
@@ -67,11 +68,11 @@ run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	touch run/dbinit
 
 psql:
-	@${PSQL} -h ${TOP}/run $${PSQLUSER} $${DATABASE-template1}
+	@${PSQL} -h ${DBPATH} $${PSQLUSER} $${DATABASE-template1}
 
 load:
 	echo LOADING to database $${DATABASE-template1}
-	${PSQL} -h ${TOP}/run $${DATABASE-template1} -f $${INPUTFILE}
+	${PSQL} -h ${DBPATH} $${DATABASE-template1} -f $${INPUTFILE}
 
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
 #	make dbrebuild
