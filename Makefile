@@ -123,6 +123,14 @@ server: ${DBPATH}/postmaster.pid
 dbpath:
 	@echo ${DBPATH}
 
+dbpass:
+	@echo ${DBPASSWORD}
+
+dbredo:
+	make stop
+	rm -rf run
+	make
+
 showconfig:
 	@echo POSTBIN ${POSTBIN}
 	@echo APPNAME ${APPNAME}
