@@ -20,10 +20,10 @@ DATABASE=${APPNAME}_development
 APACHE2_MODDIR=$(shell if [ -d /usr/lib/apache2/modules ]; then echo /usr/lib/apache2/modules; else echo WHERE IS APACHE; fi; )
 WEBSERVER=$(shell if [ -x /usr/sbin/httpd2 ]; then echo  /usr/sbin/httpd2; elif [ -x /usr/sbin/apache2 ]; then echo /usr/sbin/apache2; fi)
 PHP5_MODDIR=${APACHE2_MODDIR}
-SYSTEMPORT=$(./etc/portnum.sh )
+SYSTEMPORT=$(shell ${SCRIPTDIR}/portnum.sh )
 IPADDRESS=127.0.0.1
 MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime.types; elif [ -f /etc/mime.types ]; then echo /etc/mime.types; fi)
-SYSTEMURL=$(echo 'http://localhost:'${SYSTEMPORT}'/')
+SYSTEMURL:=http://localhost:${SYSTEMPORT}/
 SEDFILE=sed \
 		-e 's,@APP@,${APPNAME},g' \
 		-e 's,@APPNAME@,${APPNAME},g' \
@@ -143,6 +143,8 @@ showconfig:
 	@echo MIMETYPES:  ${MIMETYPES}
 	@echo PHP5_MODDIR:${PHP5_MODDIR}
 	@echo DATABASE:   ${DATABASE}
+	@echo SYSTEMPORT: ${SYSTEMPORT}
+	@echo SYSTEMURL:  ${SYSTEMURL}
 
 httpd.conf:
         # just make sure it exists.
