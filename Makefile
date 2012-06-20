@@ -42,7 +42,7 @@ export LANG=C
 export LC_TIME=C
 export DATABASE
 
-all: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
+all:: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
 
 -include can-o-pg.settings
 
