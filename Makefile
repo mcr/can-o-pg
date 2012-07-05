@@ -31,7 +31,7 @@ export LANG=C
 export LC_TIME=C
 export DATABASE
 
-all: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
+all:: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
 
 install: 
 	ln -f -s vendor/plugins/can-o-pg/Makefile .
