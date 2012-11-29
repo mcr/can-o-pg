@@ -18,7 +18,7 @@ if [ -d /usr/share/phppgadmin ]; then
     mkdir -p $ServerRoot/run/phppgadmin
     (cd $ServerRoot/run/phppgadmin;
         ln -f -s /usr/share/phppgadmin/* .
-        [ -d conf ] || rm -f conf
+        rm -f conf
         mkdir -p conf
         cp $ScriptDir/php/conf/config.inc.php conf )
 fi
