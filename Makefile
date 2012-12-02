@@ -64,7 +64,7 @@ load:
 
 dump:
 	echo DUMPING to database $${OUTFILE-db/output.sql}
-	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${DATABASE} >$${OUTFILE-db/output.sql} 
+	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/output.sql} 
 
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
 #	make dbrebuild
