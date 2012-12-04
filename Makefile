@@ -137,19 +137,19 @@ dbredo:
 	make
 
 showconfig:
-	@echo POSTBIN ${POSTBIN}
-	@echo APPNAME ${APPNAME}
-	@echo DBPATH: ${DBPATH}
-	@echo DBPASSWORD: ${DBPASSWORD}
-	@echo SCRIPTDIR:  ${SCRIPTDIR}
-	@echo TOP:        ${TOP}
-	@echo APACHE2_MODDIR: ${APACHE2_MODDIR}
-	@echo WEBSERVER:  ${WEBSERVER}
-	@echo MIMETYPES:  ${MIMETYPES}
-	@echo PHP5_MODDIR:${PHP5_MODDIR}
-	@echo DATABASE:   ${DATABASE}
-	@echo SYSTEMPORT: ${SYSTEMPORT}
-	@echo SYSTEMURL:  ${SYSTEMURL}
+	@echo POSTBIN="${POSTBIN}"
+	@echo APPNAME="${APPNAME}"
+	@echo DBPATH="${DBPATH}"
+	@echo DBPASSWORD="${DBPASSWORD}"
+	@echo SCRIPTDIR="${SCRIPTDIR}"
+	@echo TOP="${TOP}"
+	@echo APACHE2_MODDIR="${APACHE2_MODDIR}"
+	@echo WEBSERVER="${WEBSERVER}"
+	@echo MIMETYPES="${MIMETYPES}"
+	@echo PHP5_MODDIR="${PHP5_MODDIR}"
+	@echo DATABASE="${DATABASE}"
+	@echo SYSTEMPORT="${SYSTEMPORT}"
+	@echo SYSTEMURL="${SYSTEMURL}"
 
 httpd.conf:
         # just make sure it exists.

@@ -7,126 +7,133 @@ Download
 Introduction
 ------------
 
-Can-o-PG started as a small set of scripts that configures a LAPP system
-in the current directory.  (Linux Apache Postgresql PHP)
+Sets up a new installation of the postgres data files and configuration.
+Postgres can run as the user that installs these files.  Postgres will
+be configured to use sockets rather than network for communications.
 
-This branch is now a Rails Vendor plugin.  
+This is useful for developer environments or for applications which want
+the exclusive use of the database (eg, ledgersmb).  Also useful for running
+postgres-backed programs in environments where you don't have root.
 
-I really dislike web projects that tell me to go reconfigure the running
-Postgresql daemon (and then give me no examples), and assume that I want to run
-everything, even during testing, as a system process.
+This set of scripts[0] will set up a postgres configuration and runtime directory
+under the current directory.  It will use the system executables.
 
-What I want is to turn web "applications" into normal source trees.
-This means that they run without root, they run in the current directory,
-and they do not require reconfiguring system daemons.
+The scripts will use bootstrap.sql.in to do some prep on the DB:
+create a couple of databases and users with default passwords.
+The scripts will convert bootstrap.sql.in into bootstrap.sql, and
+then run bootstrap.sql in the psql environment.
 
-PostgresQL very easily will run with a custom Unix domain port, and
-Apache will run unpriviledged on a custom port, it's just a question of
-plugging it all together.
 
-To use this version, you include it as a rails plugin.  You can do this 
-either with:
-        script/plugin install git://github.com/mcr/can-o-pg.git 
+For historical reasons, the scripts expect that the can-o-pg directory
+will be in vendor/plugins/can-o-pg, and the Makefile will be beside vendor
+(actually it's a link to vendor/plugins/can-o-pg).  That's because
+can-o-pg was developed in a Rails environment.  However, it is not
+required to run in that directory structure.  In the Makefile at the
+top, change SCRIPTDIR to . (dot) if you do not want to put it in
+vendor/plugins/can-o-pg.
 
-I prefer to use git, and so I use git submodules:
-        git submodule add git://github.com/mcr/can-o-pg.git vendor/plugins/can-o-pg
 
-Either way, then do, once:
-        make -f vendor/plugins/can-o-pg/Makefile install
+[0] The scripts are collected together into a Makefile.  A few auxilliary
+scripts are separated out into files (findpgsql.sh, portnum.sh, etc) but
+are called from the Makefile.
 
-I suggest you commit the symlink that results, as git submodules does not
-do it for you.   A future version may be pure ruby Rakefile, and no shell
-scripts, but at this point the shell scripts are shared with django and
-PHP/LAPP applications as well.
+To run the scriptlets in the Makefile, give the make command along with
+the "target" name:
 
-Then setup your "public" directory to point to the root of your HTML/PHP
-code.   For Rails projects, this is naturally where it is.   (You will see
-that there are rails cluster code visible in the apache.conf)
+    make showconfig
 
-There are several ways to do this, if you are working with a stock PHP/Apache
-project (like racktables, ledgersmb, etc..):
 
-1) a straight symlink pointing to another directory.
-2) copy the code to public
-3) git submodule add, to get your data there    (common with django code)
-4) start new project in this format.
+will run the scriptlet associated with the "showconfig" target in the
+makefile.
 
-If you go the (3) route, you should, after you create the .gitsubmodule
-and tests, and other directories you need for your testing skaffold,
-then create a new project for your foo project, "foo-skaffold".
-Updates from can-o-mysql can be applied with a git merge or git rebase.
+    showconfig:
+        @echo POSTBIN="${POSTBIN}"
+        @echo APPNAME="${APPNAME}"
+        @echo DBPATH="${DBPATH}"
+        @echo DBPASSWORD="${DBPASSWORD}"
+        @echo SCRIPTDIR="${SCRIPTDIR}"
+        @echo TOP="${TOP}"
+        @echo APACHE2_MODDIR="${APACHE2_MODDIR}"
+        @echo WEBSERVER="${WEBSERVER}"
+        @echo MIMETYPES="${MIMETYPES}"
+        @echo PHP5_MODDIR="${PHP5_MODDIR}"
+        @echo DATABASE="${DATABASE}"
+        @echo SYSTEMPORT="${SYSTEMPORT}"
+        @echo SYSTEMURL="${SYSTEMURL}"
+
+In case you want to edit the Makefile, note that makefiles use tabs (not spaces)
+for delimiting the beginning of the lines for the scriptlets.
+
 
 CONFIGURATION
 =============
 
 run "make showconfig" to see what the settings are, you should see something
 like: 
-        POSTBIN /usr/lib/postgresql/8.3/bin
-        APPNAME chapter13
-        DBPATH: /corp/projects/credil/nv/chapter13/run
-        DBPASSWORD: baesheDaic5OhGh2
-        SCRIPTDIR: vendor/plugins/can-o-pg
-        TOP: /corp/projects/credil/nv/chapter13
-        APACHE2_MODDIR: /usr/lib/apache2/modules
-        WEBSERVER: /usr/sbin/apache2
-        MIMETYPES: /etc/mime.types
-        PHP5_MODDIR:/usr/lib/apache2/modules
+
+        POSTBIN=/usr/lib/postgresql/8.3/bin
+        APPNAME=chapter13
+        DBPATH=/corp/projects/credil/nv/chapter13/run
+        DBPASSWORD=baesheDaic5OhGh2
+        SCRIPTDIR=vendor/plugins/can-o-pg
+        TOP=/corp/projects/credil/nv/chapter13
+        APACHE2_MODDIR=/usr/lib/apache2/modules
+        WEBSERVER=/usr/sbin/apache2
+        MIMETYPES=/etc/mime.types
+        PHP5_MODDIR=/usr/lib/apache2/modules
+
 
 If you need to override any of these values, you can use the file 
 "can-o-pg.settings" at the top level.  It is a makefile format file that will
 be included if it exists.
 
+You can create the file with "touch can-o-pg.settings" or by redirecting the
+make showconfig output to a file:
+
+    make showconfig > can-o-pg.settings
+
+
+
 
 APACHE
 ======
 
+Similarly, this script can run apache as a regular user (rather than root) for
+development environments.
+
 If you need Apache (and you do if you are doing PHP5 work), then just run
-"make apache" and and apache configuration will be created in run, and a copy
+"make apache" and an apache configuration will be created in run, and a copy
 of Apache will be started.   It will be started on a port number equal to 8000
 plus your uid.  This choice is stable per user, but permits multiple users 
 to work on a multiuser machine (this is common if you have windows programmers 
 using putty to a linux machine).
 
-New Projects
-============
-
-On a new project, I suggest that you organize things the way that Rails does.
-Your code does not go into public, only your visible .html and .phtml files
-do.  All of your classes and the like go into the top-level php directory.
-
-If you need mocks or other code just for tests, then put them into test/php,
-which is on the php include path prior to php.
-
 PHPPGADMIN
 ==========
 
-No doubt you will need to grovel the database by hand at times.
+No doubt you will need to tweak the database by hand at times.
 phppgadmin is a very good tool. If you have a copy in /usr/share/phppgadmin,
 it will be linked into the apache config at /phppgadmin.  It is connected
-to the database by Unix domain socket.  You can use the identities created
+to the database by Unix domain socket.  You can use the roles created
 by the bootstrap.sql, such as application_development.
 
 
 USING IT
 ========
 
-You will find a Makefile at the top-level.  I'd rather it was a Rakefile,
-but I use this code with multiple other things which are not rails. 
-(There is a branch of the code that supports Django, btw)
+You will find a Makefile at the top-level.
 
-You'll want to edit vendor/plugins/can-o-pg/bootstrap.sql.in eventually,
-and I ought to include another file as well.
-For rails projects, you can just use migrations to populate the database, but
-other systems you'll want to include whatever schema creation code.  Also
-note the passwords which  are in that file, they go into your
-config/database.yml or equivalent. 
+You'll want to edit bootstrap.sql.in eventually.
 
 Open up the can-o-pg.settings, and change APPNAME= if the name of the current
-directory is wrong.  
+directory is wrong.
 
 But, for now, just do:
         make
-        cp vendor/plugins/can-o-pg/database.yml config/database.yml
+
+
+for Rails apps, you can:
+        cp database.yml config/database.yml
 
 ("make server" will do this for you)
 
@@ -138,4 +145,11 @@ make INPUTFILE=foo load  - starts psql with "foo" on command line
 make apache
 make apachestop         - stop apache
 make stop               - shutdown database
+make                    - start the DB again.  Careful, if you have fiddled too much
+                          with the config/runtime files, it will wipe out your DB and
+                          re-create from scratch.  You'll have to read the Makefile
+                          dependencies to figure out when this will happen.
+                          It might be nice to make a new rule just for starting the
+                          executables so there is no risk of losing data, but that's
+                          not there at the moment.
 make showconfig         - show settings
