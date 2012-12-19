@@ -83,15 +83,24 @@ like:
         PHP5_MODDIR=/usr/lib/apache2/modules
 
 
-If you need to override any of these values, you can use the file 
-"can-o-pg.settings" at the top level.  It is a makefile format file that will
-be included if it exists.
+If you need to override certain of these values (see the list below of overrideable
+items), you can use the file "can-o-pg.settings" at the top level.  It is a makefile
+format file that will be included into the Makefile at runtime if it exists.
+
+Overrideable settings:
+    DBPASSWORD
+    DBPATH
+    DBCLUSTER
+    DATABASE
 
 You can create the file with "touch can-o-pg.settings" or by redirecting the
 make showconfig output to a file:
 
     make showconfig > can-o-pg.settings
 
+Be sure to remove the items that are not overrideable.
+If you want to change one of the other items, it must be done directly in
+the Makefile.
 
 
 
