@@ -65,6 +65,7 @@ run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > run/log/postgresql.log 2>&1 &
 	sleep 10
 	${PSQL} -h ${DBPATH} -f ${SCRIPTDIR}/bootstrap.sql template1
+	if [ -f can-o-pg.sql ]; then ${PSQL} -h ${DBPATH} -f can-o-pg.sql template1; fi
 	${PG_CTL} -D ${DBCLUSTER} stop
 	touch run/dbinit
 
