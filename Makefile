@@ -70,7 +70,7 @@ run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
 	touch run/dbinit
 
 psql:
-	@${PSQL} -h ${DBPATH} $${PSQLUSER} $${DATABASE-template1}
+	@${PSQL} -h ${DBPATH} $${DATABASE-template1} $${PSQLUSER}
 
 load:
 	echo LOADING to database $${DATABASE-template1}
@@ -78,7 +78,7 @@ load:
 
 dump:
 	echo DUMPING to database $${OUTFILE-db/output.sql}
-	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${DATABASE} >$${OUTFILE-db/output.sql} 
+	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/output.sql} 
 
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
 #	make dbrebuild
@@ -90,8 +90,12 @@ ${DBPATH}/postmaster.pid: run/dbinit #db_dump/restore.sql
 stop:
 	${PG_CTL} -D ${DBCLUSTER} stop
 
-${SCRIPTDIR}/%: ${SCRIPTDIR}/%.in Makefile
+${SCRIPTDIR}/%.sh:${SCRIPTDIR}/%.sh.in Makefile
 	${SEDFILE} $< >$@
+	chmod +x $@
+
+${SCRIPTDIR}/%: ${SCRIPTDIR}/%.in Makefile
+	${SEDFILE} $< > $@
 	@if [ -x $< ]; then chmod +x $@; fi
 
 ${SCRIPTDIR}/bootstrap.sql: ${SCRIPTDIR}/bootstrap.sql.in Makefile
@@ -138,19 +142,22 @@ dbredo:
 	make
 
 showconfig:
-	@echo POSTBIN ${POSTBIN}
-	@echo APPNAME ${APPNAME}
-	@echo DBPATH: ${DBPATH}
-	@echo DBPASSWORD: ${DBPASSWORD}
-	@echo SCRIPTDIR:  ${SCRIPTDIR}
-	@echo TOP:        ${TOP}
-	@echo APACHE2_MODDIR: ${APACHE2_MODDIR}
-	@echo WEBSERVER:  ${WEBSERVER}
-	@echo MIMETYPES:  ${MIMETYPES}
-	@echo PHP5_MODDIR:${PHP5_MODDIR}
-	@echo DATABASE:   ${DATABASE}
-	@echo SYSTEMPORT: ${SYSTEMPORT}
-	@echo SYSTEMURL:  ${SYSTEMURL}
+	@echo POSTBIN=${POSTBIN}
+	@echo APPNAME=${APPNAME}
+	@echo SCRIPTDIR=${SCRIPTDIR}
+	@echo TOP=${TOP}
+	@echo APACHE2_MODDIR=${APACHE2_MODDIR}
+	@echo WEBSERVER=${WEBSERVER}
+	@echo MIMETYPES=${MIMETYPES}
+	@echo PHP5_MODDIR=${PHP5_MODDIR}
+	@echo SYSTEMPORT=${SYSTEMPORT}
+	@echo SYSTEMURL=${SYSTEMURL}
+	@echo
+	@echo "# the following can be put in can-o-pg.settings"
+	@echo DBPATH=${DBPATH}
+	@echo DBPASSWORD=${DBPASSWORD}
+	@echo DATABASE=${DATABASE}
+	@echo DBCLUSTER=${DBCLUSTER}
 
 httpd.conf:
         # just make sure it exists.
