@@ -4,7 +4,7 @@
 
 APPNAME:=$(shell basename $$(pwd))
 TOP=$(shell pwd)
-SCRIPTDIR=vendor/plugins/can-o-pg
+SCRIPTDIR=etc/can-o-pg
 POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
 PSQL=${POSTBIN}/psql
 PG_DUMP=${POSTBIN}/pg_dump
