@@ -47,7 +47,7 @@ all:: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
 -include can-o-pg.settings
 
 install: 
-	ln -f -s vendor/plugins/can-o-pg/Makefile .
+	ln -f -s ${SCRIPTDIR}/Makefile .
 
 run/dirs:
 	mkdir -p run run/lock run/log run/log/apache2
