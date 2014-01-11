@@ -1,13 +1,13 @@
-# this postgresql local cluster init was first developed for the 
+# this postgresql local cluster init was first developed for the
 # ITERation project:  http://tbs-sct.ircan.gc.ca/projects/iteration
 #
 
 APPNAME:=$(shell basename $$(pwd))
 TOP=$(shell pwd)
 SCRIPTDIR=vendor/plugins/can-o-pg
-POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
 PSQL=${POSTBIN}/psql
 PG_DUMP=${POSTBIN}/pg_dump
+PG_RESTORE=${POSTBIN}/pg_restore
 POSTMASTER=${POSTBIN}/postmaster
 INITDB=${POSTBIN}/initdb
 PG_CTL=${POSTBIN}/pg_ctl
@@ -21,7 +21,6 @@ DATABASE=${APPNAME}_development
 APACHE2_MODDIR=$(shell if [ -d /usr/lib/apache2/modules ]; then echo /usr/lib/apache2/modules; else echo WHERE IS APACHE; fi; )
 WEBSERVER=$(shell if [ -x /usr/sbin/httpd2 ]; then echo  /usr/sbin/httpd2; elif [ -x /usr/sbin/apache2 ]; then echo /usr/sbin/apache2; fi)
 PHP5_MODDIR=${APACHE2_MODDIR}
-SYSTEMPORT=$(shell ${SCRIPTDIR}/portnum.sh )
 IPADDRESS=127.0.0.1
 MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime.types; elif [ -f /etc/mime.types ]; then echo /etc/mime.types; fi)
 SYSTEMURL:=http://localhost:${SYSTEMPORT}/
@@ -42,18 +41,20 @@ export LANG=C
 export LC_TIME=C
 export DATABASE
 
+-include can-o-pg.settings
+SYSTEMPORT=$(shell ${SCRIPTDIR}/portnum.sh )
+POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
+
 all:: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
 
--include can-o-pg.settings
-
-install: 
-	ln -f -s vendor/plugins/can-o-pg/Makefile .
+install:
+	ln -f -s ${SCRIPTDIR}/Makefile .
 
 run/dirs:
 	mkdir -p run run/lock run/log run/log/apache2
 	touch run/dirs
 
-run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql
+run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql ${EXTRAFILES}
 	-[ -f ${DBPATH}/postmaster.pid ] && ${PG_CTL} -D ${DBPATH} stop
 	-rm -f ${DBPATH}/postmaster.pid
 	-rm -rf ${DBCLUSTER}
@@ -76,9 +77,13 @@ load:
 	echo LOADING to database $${DATABASE-template1}
 	${PSQL} -h ${DBPATH} $${DATABASE-template1} -f $${INPUTFILE}
 
+restore:
+	echo RESTORING to database $${DATABASE-template1}
+	${PG_RESTORE} -h ${DBPATH} -d $${DATABASE-template1} $${INPUTFILE}
+
 dump:
 	echo DUMPING to database $${OUTFILE-db/output.sql}
-	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/output.sql} 
+	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/output.sql}
 
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
 #	make dbrebuild
@@ -91,6 +96,10 @@ stop:
 	${PG_CTL} -D ${DBCLUSTER} stop
 
 ${SCRIPTDIR}/%.sh:${SCRIPTDIR}/%.sh.in Makefile
+	${SEDFILE} $< >$@
+	chmod +x $@
+
+%: %.in Makefile
 	${SEDFILE} $< >$@
 	chmod +x $@
 
@@ -118,12 +127,12 @@ ${SCRIPTDIR}/database.yml: ${SCRIPTDIR}/database.yml.in Makefile
 clean:
 	@rm -f ${SCRIPTDIR}/database.yml ${SCRIPTDIR}/bootstrap.sql
 	@rm -f ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
-	@rm -f ${SCRIPTDIR}/shutit.sh  
+	@rm -f ${SCRIPTDIR}/shutit.sh
 
 apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php public
 	${SCRIPTDIR}/runweb.sh
 
-apachestop: ${SCRIPTDIR}/shutit.sh  
+apachestop: ${SCRIPTDIR}/shutit.sh
 	${SCRIPTDIR}/shutit.sh
 
 server: ${DBPATH}/postmaster.pid
