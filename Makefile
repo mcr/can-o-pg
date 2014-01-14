@@ -15,11 +15,13 @@ TCPIP=-h ''
 # make up your own, put it in can-o-pg.settings
 DBPASSWORD=baesheDaic5OhGh2
 DBPATH=${TOP}/run
+RUNDIR=${TOP}/run
 DBCLUSTER=${DBPATH}/dbcluster
 DATABASE=${APPNAME}_development
 
 APACHE2_MODDIR=$(shell if [ -d /usr/lib/apache2/modules ]; then echo /usr/lib/apache2/modules; else echo WHERE IS APACHE; fi; )
 WEBSERVER=$(shell if [ -x /usr/sbin/httpd2 ]; then echo  /usr/sbin/httpd2; elif [ -x /usr/sbin/apache2 ]; then echo /usr/sbin/apache2; fi)
+DATABASEYML=${SCRIPTDIR}/database.yml
 PHP5_MODDIR=${APACHE2_MODDIR}
 IPADDRESS=127.0.0.1
 MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime.types; elif [ -f /etc/mime.types ]; then echo /etc/mime.types; fi)
@@ -28,6 +30,7 @@ SEDFILE=sed \
 		-e 's,@APP@,${APPNAME},g' \
 		-e 's,@APPNAME@,${APPNAME},g' \
 		-e 's,@DBPATH@,${DBPATH},g' \
+		-e 's,@RUNDIR@,${RUNDIR},g' \
 		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
 		-e 's,@SCRIPTDIR@,${SCRIPTDIR},g' \
 		-e 's,@TOPDIR@,'${TOP}',g' \
@@ -45,7 +48,7 @@ export DATABASE
 SYSTEMPORT=$(shell ${SCRIPTDIR}/portnum.sh )
 POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
 
-all:: ${DBPATH}/postmaster.pid ${SCRIPTDIR}/database.yml
+all:: ${DBPATH}/postmaster.pid ${DATABASEYML}
 
 install:
 	ln -f -s ${SCRIPTDIR}/Makefile .
@@ -146,8 +149,9 @@ dbpass:
 	@echo ${DBPASSWORD}
 
 dbredo:
-	make stop
-	rm -rf run
+	-make stop
+	rm -rf run/postgresql
+	rm run/dbinit
 	make
 
 showconfig:
