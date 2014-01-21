@@ -28,7 +28,7 @@ mkdir -p $ServerRoot/run/lock/apache2
 mkdir -p $ServerRoot/run/log/apache2
 
 echo Starting web server on port $PORT
-$WEBSERVER -f ${ScriptDir}/apache2.conf -d $ServerRoot -C 'User '$USER -C 'Listen 127.0.0.1:'$PORT
+$WEBSERVER -f ${ScriptDir}/apache2.conf -d $ServerRoot -C 'User '$USER -C 'Listen [::]:'$PORT
 
 # for applications which use Rails too.
 #echo Now starting mongrel cluster on port 9000/9001.
@@ -36,4 +36,5 @@ $WEBSERVER -f ${ScriptDir}/apache2.conf -d $ServerRoot -C 'User '$USER -C 'Liste
 
 #$ServerRoot/script/process/spawner mongrel -p 9000 -i 2 -a 127.0.0.1
 
+(cd sns_web && script/sns_fastcgi.pl --listen @RUNDIR@/sns.socket )
 
