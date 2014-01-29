@@ -16,6 +16,7 @@ TCPIP=-h ''
 DBPASSWORD=baesheDaic5OhGh2
 DBPATH=${TOP}/run
 RUNDIR=${TOP}/run
+LOGDIR=${RUNDIR}/log
 DBCLUSTER=${DBPATH}/dbcluster
 DATABASE=${APPNAME}_development
 
@@ -31,6 +32,7 @@ SEDFILE=sed \
 		-e 's,@APPNAME@,${APPNAME},g' \
 		-e 's,@DBPATH@,${DBPATH},g' \
 		-e 's,@RUNDIR@,${RUNDIR},g' \
+		-e 's,@LOGDIR@,${LOGDIR},g' \
 		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
 		-e 's,@SCRIPTDIR@,${SCRIPTDIR},g' \
 		-e 's,@TOPDIR@,'${TOP}',g' \
@@ -54,19 +56,21 @@ install:
 	ln -f -s ${SCRIPTDIR}/Makefile .
 
 run/dirs:
-	mkdir -p run run/lock run/log run/log/apache2
+	mkdir -p run run/lock ${LOGDIR} ${LOGDIR}/apache2
 	touch run/dirs
 
 run/dbinit: run/dirs ${SCRIPTDIR}/bootstrap.sql ${EXTRAFILES}
 	-[ -f ${DBPATH}/postmaster.pid ] && ${PG_CTL} -D ${DBPATH} stop
 	-rm -f ${DBPATH}/postmaster.pid
+	echo following will bail and keep your data
+	[ ! -f ${RUNDIR}/precious ]
 	-rm -rf ${DBCLUSTER}
-	mkdir -p ${DBCLUSTER} ${DBPATH}/log
+	mkdir -p ${DBCLUSTER} ${LOGDIR}
 	chmod u=rwx,g-rx,o-rx ${DBPATH}
 	${INITDB} --encoding=utf8 -D ${DBCLUSTER}
 	cp ${SCRIPTDIR}/pg_hba.conf ${DBCLUSTER}
 	echo "superuser ${USER} postgres" >${DBCLUSTER}/pg_ident.conf
-	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > run/log/postgresql.log 2>&1 &
+	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > ${LOGDIR}/postgresql.log 2>&1 &
 	sleep 10
 	${PSQL} -h ${DBPATH} -f ${SCRIPTDIR}/bootstrap.sql template1
 	if [ -f can-o-pg.sql ]; then ${PSQL} -h ${DBPATH} -f can-o-pg.sql template1; fi
@@ -88,15 +92,20 @@ dump:
 	echo DUMPING to database $${OUTFILE-db/output.sql}
 	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/output.sql}
 
+dumpschema:
+	echo DUMPING SCHEMA to database $${OUTFILE-db/schema.sql}
+	mkdir -p db
+	${PG_DUMP} --create --schema-only -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/schema.sql}
+
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
 #	make dbrebuild
 
 ${DBPATH}/postmaster.pid: run/dbinit #db_dump/restore.sql
 	mkdir -p run/postgresql
-	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > run/log/postgresql.log 2>&1 &
+	${POSTMASTER} -D ${DBCLUSTER} ${TCPIP} -k ${DBPATH} > ${LOGDIR}/postgresql.log 2>&1 &
 
-stop:
-	${PG_CTL} -D ${DBCLUSTER} stop
+stop::
+	if [ -r ${DBCLUSTER}/postmaster.pid ]; then ${PG_CTL} -D ${DBCLUSTER} stop; fi
 
 ${SCRIPTDIR}/%.sh:${SCRIPTDIR}/%.sh.in Makefile
 	${SEDFILE} $< >$@
@@ -132,7 +141,7 @@ clean:
 	@rm -f ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
 	@rm -f ${SCRIPTDIR}/shutit.sh
 
-apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php public
+apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runapp.sh ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php httpd.conf
 	${SCRIPTDIR}/runweb.sh
 
 apachestop: ${SCRIPTDIR}/shutit.sh
@@ -155,10 +164,11 @@ dbredo:
 	make
 
 showconfig:
+	@echo TOP=${TOP}
+	@echo RUNDIR=${RUNDIR}
 	@echo POSTBIN=${POSTBIN}
 	@echo APPNAME=${APPNAME}
 	@echo SCRIPTDIR=${SCRIPTDIR}
-	@echo TOP=${TOP}
 	@echo APACHE2_MODDIR=${APACHE2_MODDIR}
 	@echo WEBSERVER=${WEBSERVER}
 	@echo MIMETYPES=${MIMETYPES}
@@ -172,7 +182,4 @@ showconfig:
 	@echo DATABASE=${DATABASE}
 	@echo DBCLUSTER=${DBCLUSTER}
 
-httpd.conf:
-        # just make sure it exists.
-	touch httpd.conf
 

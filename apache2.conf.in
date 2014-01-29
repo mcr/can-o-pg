@@ -72,6 +72,7 @@ LoadModule php5_module @PHP5_MODDIR@/libphp5.so
 </IfModule>
 <IfModule !mod_fastcgi.c>
 	LoadModule fastcgi_module               @APACHE2_MODDIR@/mod_fastcgi.so
+        FastCgiIpcDir                           @RUNDIR@
 </IfModule>
 <IfModule !mod_cgi.c>
 	LoadModule cgi_module                   @APACHE2_MODDIR@/mod_cgi.so
@@ -137,10 +138,6 @@ Alias /icons/ "/usr/share/apache2/icons/"
     Order allow,deny
     Allow from all
 </Directory>
-
-Alias /static/        @TOPDIR@/sns_web/root/static/
-FastCgiExternalServer @TOPDIR@/sns.fcgi -socket @RUNDIR@/sns.socket
-Alias / @TOPDIR@/sns.fcgi
 
 # Set up the default error docs.
 #

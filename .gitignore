@@ -7,3 +7,5 @@ runweb.sh
 shutit.sh
 php/conf/config.inc.php
 
+runapp.sh
+.#*
