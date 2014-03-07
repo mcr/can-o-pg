@@ -82,7 +82,7 @@ psql:
 
 load:
 	echo LOADING to database $${DATABASE-template1}
-	${PSQL} -h ${DBPATH} $${DATABASE-template1} -f $${INPUTFILE}
+	${PSQL} -q -o /dev/null -h ${DBPATH} $${DATABASE-template1} -f $${INPUTFILE}
 
 restore:
 	echo RESTORING to database $${DATABASE-template1}
@@ -162,6 +162,9 @@ dbredo:
 	rm -rf run/postgresql
 	rm run/dbinit
 	make
+
+reload:
+	${PG_CTL} -D ${DBCLUSTER} reload
 
 showconfig:
 	@echo TOP=${TOP}
