@@ -97,6 +97,10 @@ dumpschema:
 	mkdir -p db
 	${PG_DUMP} --create --schema-only -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/schema.sql}
 
+loadschema:
+	echo Loading SCHEMA from database $${OUTFILE-db/schema.sql}
+	${PSQL} -q -h ${DBPATH} ${DATABASE} -f db/schema.sql
+
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
 #	make dbrebuild
 
