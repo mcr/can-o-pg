@@ -153,7 +153,7 @@ apachestop: ${SCRIPTDIR}/shutit.sh
 
 server: ${DBPATH}/postmaster.pid
 	cp ${SCRIPTDIR}/database.yml config/database.yml
-	script/rails server
+	ruby script/server
 
 dbpath:
 	@echo ${DBPATH}
