@@ -26,7 +26,6 @@ DATABASEYML=${SCRIPTDIR}/database.yml
 PHP5_MODDIR=${APACHE2_MODDIR}
 IPADDRESS=127.0.0.1
 MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime.types; elif [ -f /etc/mime.types ]; then echo /etc/mime.types; fi)
-SYSTEMURL:=http://localhost:${SYSTEMPORT}/
 SEDFILE=sed \
 		-e 's,@APP@,${APPNAME},g' \
 		-e 's,@APPNAME@,${APPNAME},g' \
@@ -49,6 +48,7 @@ export DATABASE
 -include can-o-pg.settings
 SYSTEMPORT=$(shell ${SCRIPTDIR}/portnum.sh )
 POSTBIN?=$(shell ${SCRIPTDIR}/findpgsql.sh )
+SYSTEMURL?=http://localhost:${SYSTEMPORT}/
 
 all:: ${DBPATH}/postmaster.pid ${DATABASEYML}
 
