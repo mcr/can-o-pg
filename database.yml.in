@@ -21,6 +21,7 @@ development:
   password: @DBPASSWORD@
   encoding: utf8
   host: <%= ::Rails.root.to_s %>/run
+  reconnect: true
 
 development_migration:
   adapter: postgresql
@@ -29,6 +30,7 @@ development_migration:
   password: @DBPASSWORD@
   encoding: utf8
   host: <%= ::Rails.root.to_s %>/run
+  reconnect: true
 
 test:
   adapter: postgresql
@@ -37,5 +39,6 @@ test:
   password: @DBPASSWORD@
   encoding: utf8
   host: <%= ::Rails.root.to_s %>/run
+  reconnect: true
 
 
