@@ -29,6 +29,7 @@ MIMETYPES=$(shell if [ -f /etc/apache2/mime.types ]; then echo /etc/apache2/mime
 SEDFILE=sed \
 		-e 's,@APP@,${APPNAME},g' \
 		-e 's,@APPNAME@,${APPNAME},g' \
+		-e 's,@DATABASE@,${DATABASE},g' \
 		-e 's,@DBPATH@,${DBPATH},g' \
 		-e 's,@RUNDIR@,${RUNDIR},g' \
 		-e 's,@LOGDIR@,${LOGDIR},g' \
