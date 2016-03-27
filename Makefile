@@ -3,6 +3,7 @@
 #
 
 APPNAME:=$(shell basename $$(pwd))
+APPDIR=.
 TOP=$(shell pwd)
 SCRIPTDIR=vendor/plugins/can-o-pg
 PSQL=${POSTBIN}/psql
@@ -90,17 +91,17 @@ restore:
 	${PG_RESTORE} -h ${DBPATH} -d $${DATABASE-template1} $${INPUTFILE}
 
 dump:
-	echo DUMPING to database $${OUTFILE-db/output.sql}
-	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/output.sql}
+	echo DUMPING to database $${OUTFILE-${APPDIR}/db/output.sql}
+	${PG_DUMP} --data-only --column-inserts -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-${APPDIR}/db/output.sql}
 
 dumpschema:
-	echo DUMPING SCHEMA to database $${OUTFILE-db/schema.sql}
-	mkdir -p db
-	${PG_DUMP} --create --schema-only -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-db/schema.sql}
+	echo DUMPING SCHEMA to database $${OUTFILE-${APPDIR}/db/schema.sql}
+	mkdir -p ${APPDIR}/db
+	${PG_DUMP} --create --schema-only -h ${TOP}/run ${TABLE} ${DATABASE} >$${OUTFILE-${APPDIR}/db/schema.sql}
 
 loadschema:
-	echo Loading SCHEMA from database $${OUTFILE-db/schema.sql}
-	${PSQL} -q -h ${DBPATH} ${DATABASE} -f db/schema.sql
+	echo Loading SCHEMA from database $${OUTFILE-${APPDIR}/db/schema.sql}
+	${PSQL} -q -h ${DBPATH} ${DATABASE} -f ${APPDIR}/db/schema.sql
 
 #run/dbinit: #sql/schema.sql db_dump/restore.sql
 #	make dbrebuild
@@ -139,7 +140,7 @@ ${SCRIPTDIR}/database.yml: ${SCRIPTDIR}/database.yml.in Makefile
 		-e 's,@DBPATH@,${DBPATH},g' \
 		-e 's,@DBPASSWORD@,${DBPASSWORD},g' \
 		${SCRIPTDIR}/database.yml.in >${SCRIPTDIR}/database.yml
-	@echo You can enable by: cp ${SCRIPTDIR}/database.yml config/database.yml
+	@echo You can enable by: cp ${SCRIPTDIR}/database.yml ${APPDIR}/config/database.yml
 
 clean:
 	@rm -f ${SCRIPTDIR}/database.yml ${SCRIPTDIR}/bootstrap.sql
@@ -153,8 +154,8 @@ apachestop: ${SCRIPTDIR}/shutit.sh
 	${SCRIPTDIR}/shutit.sh
 
 server: ${DBPATH}/postmaster.pid
-	cp ${SCRIPTDIR}/database.yml config/database.yml
-	script/rails server
+	cp ${SCRIPTDIR}/database.yml ${APPDIR}/config/database.yml
+	ruby ${APPDIR}/script/server
 
 dbpath:
 	@echo ${DBPATH}
@@ -189,5 +190,6 @@ showconfig:
 	@echo DBPASSWORD=${DBPASSWORD}
 	@echo DATABASE=${DATABASE}
 	@echo DBCLUSTER=${DBCLUSTER}
+	@echo APPDIR=${APPDIR}
 
 
