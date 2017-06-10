@@ -109,6 +109,8 @@ LoadModule authz_user_module                  @APACHE2_MODDIR@/mod_authz_user.so
 	  PHPIniDir @SCRIPTDIR@/etc
 </IfModule>
 
+LoadModule ssl_module @APACHE2_MODDIR@/mod_ssl.so
+
 Alias /phppgadmin @TOPDIR@/run/phppgadmin/
 <Directory @TOPDIR@/run/phppgadmin/>
   DirectoryIndex index.php
