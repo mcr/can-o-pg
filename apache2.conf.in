@@ -14,7 +14,7 @@
 # DISK. The PID of the main server process is automatically appended to
 # the filename.
 
-LockFile run/lock/apache2/accept.lock
+#LockFile run/lock/apache2/accept.lock
 ServerName  localhost
 
 # PidFile: The file in which the server should record its process
@@ -59,14 +59,12 @@ ErrorLog run/log/apache2/error.log
 # Include module configuration directly here.
 LoadModule php5_module @PHP5_MODDIR@/libphp5.so
 
-<IfModule !mod_auth.c>
-	<IfModule !mod_auth_basic.c>
-		LoadModule auth_basic_module                    @APACHE2_MODDIR@/mod_auth_basic.so
-	</IfModule>
-	<IfModule !mod_authz_host.c>
-		LoadModule authz_host_module                  @APACHE2_MODDIR@/mod_authz_host.so
-	</IfModule>
-</IfModule>
+LoadModule auth_basic_module                  @APACHE2_MODDIR@/mod_auth_basic.so
+LoadModule authz_host_module                  @APACHE2_MODDIR@/mod_authz_host.so
+LoadModule authn_file_module                  @APACHE2_MODDIR@/mod_authn_file.so
+LoadModule authz_core_module                  @APACHE2_MODDIR@/mod_authz_core.so
+LoadModule authz_user_module                  @APACHE2_MODDIR@/mod_authz_user.so
+
 <IfModule !mod_env.c>
 	LoadModule env_module                   @APACHE2_MODDIR@/mod_env.so
 </IfModule>
@@ -119,9 +117,7 @@ Alias /phppgadmin @TOPDIR@/run/phppgadmin/
   DirectoryIndex index.php
   Options +FollowSymLinks
   AllowOverride None
-  order deny,allow
-  deny from all
-  allow from 127.0.0.0/255.0.0.0 ::1/128
+  Require all granted
   # allow from all
   <IfModule mod_php5.c>
     php_flag magic_quotes_gpc Off
@@ -135,8 +131,7 @@ Alias /icons/ "/usr/share/apache2/icons/"
 <Directory "/usr/share/apache2/icons">
     Options Indexes MultiViews
     AllowOverride None
-    Order allow,deny
-    Allow from all
+    Require all granted
 </Directory>
 
 # Set up the default error docs.
@@ -177,8 +172,7 @@ Alias /icons/ "/usr/share/apache2/icons/"
         Options IncludesNoExec
         AddOutputFilter Includes html
         AddHandler type-map var
-        Order allow,deny
-        Allow from all
+        Require all granted
         LanguagePriority en es de fr
         ForceLanguagePriority Prefer Fallback
     </Directory>
@@ -218,8 +212,7 @@ DirectoryIndex index.html index.cgi index.pl index.php index.xhtml
 AccessFileName .htaccess
 
 <Files ~ "^\.ht">
-    Order allow,deny
-    Deny from all
+       Require all denied
 </Files>
 
 UseCanonicalName Off
@@ -266,6 +259,8 @@ AddIcon /icons/blank.gif ^^BLANKICON^^
 # This is from Matty J's patch. Anyone want to make the icons?
 #AddIcon /icons/dirsymlink.jpg ^^SYMDIR^^
 #AddIcon /icons/symlink.jpg ^^SYMLINK^^
+
+LoadModule mpm_prefork_module @APACHE2_MODDIR@/mod_mpm_prefork.so
 
 <IfModule mpm_prefork_module>
     StartServers          1
@@ -412,7 +407,6 @@ BrowserMatch "^WebDAVFS/1.[012]" redirect-carefully
 #    Allow from .your_domain.com
 #</Location>
 
-NameVirtualHost *
 <VirtualHost *>
 	ServerAdmin webmaster@localhost
 	ServerName  localhost
