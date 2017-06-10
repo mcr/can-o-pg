@@ -109,9 +109,6 @@ LoadModule authz_user_module                  @APACHE2_MODDIR@/mod_authz_user.so
 	  PHPIniDir @SCRIPTDIR@/etc
 </IfModule>
 
-# Include all the end-user configurations:
-#Include @TOP@/httpd.conf
-
 Alias /phppgadmin @TOPDIR@/run/phppgadmin/
 <Directory @TOPDIR@/run/phppgadmin/>
   DirectoryIndex index.php
@@ -218,7 +215,6 @@ AccessFileName .htaccess
 UseCanonicalName Off
 
 TypesConfig /etc/mime.types
-DefaultType text/plain
 
 HostnameLookups Off
 
@@ -406,6 +402,12 @@ BrowserMatch "^WebDAVFS/1.[012]" redirect-carefully
 #    Deny from all
 #    Allow from .your_domain.com
 #</Location>
+
+LoadModule passenger_module /usr/lib/apache2/modules/mod_passenger.so
+<IfModule mod_passenger.c>
+  PassengerRoot /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini
+  PassengerDefaultRuby /usr/local/rvm/wrappers/ruby-2.4.1/ruby
+</IfModule>
 
 <VirtualHost *>
 	ServerAdmin webmaster@localhost
