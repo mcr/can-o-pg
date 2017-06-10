@@ -9,3 +9,5 @@ php/conf/config.inc.php
 
 runapp.sh
 .#*
+server.crt
+server.key
