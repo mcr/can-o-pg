@@ -1,0 +1,20 @@
+#!/bin/sh
+
+ServerRoot=@TOPDIR@
+ScriptDir=$ServerRoot/@SCRIPTDIR@
+source ${ScriptDir}/websettings.sh
+
+# 363 = 443 - 80
+PORT=$(($($ScriptDir/portnum.sh) + 363))
+
+echo Starting TLS web server on port $PORT
+$WEBSERVER -f ${ScriptDir}/apache2.conf -c "Include ${ScriptDir}/tls.conf" -d $ServerRoot -C 'User '$USER -C 'Listen [::]:'$PORT
+
+# for applications which use Rails too.
+#echo Now starting mongrel cluster on port 9000/9001.
+#echo NOTE: started in DEVELOPMENT mode.
+
+#$ServerRoot/script/process/spawner mongrel -p 9000 -i 2 -a 127.0.0.1
+
+#(cd sns_web && script/sns_fastcgi.pl --listen @RUNDIR@/sns.socket )
+

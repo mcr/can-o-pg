@@ -9,3 +9,5 @@ php/conf/config.inc.php
 
 runapp.sh
 .#*
+websettings.sh
+webtlsweb.sh
