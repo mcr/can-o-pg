@@ -161,6 +161,12 @@ server: ${DBPATH}/postmaster.pid
 	cp ${SCRIPTDIR}/database.yml ${APPDIR}/config/database.yml
 	ruby ${APPDIR}/script/server
 
+${SCRIPTDIR}/server.key:
+	openssl genrsa -out ${SCRIPTDIR}/server.key 2048
+
+secure: ${SCRIPTDIR}/server.key
+	openssl req -new -x509 -key ${SCRIPTDIR}/server.key -out ${SCRIPTDIR}/server.crt -days 1024
+
 dbpath:
 	@echo ${DBPATH}
 

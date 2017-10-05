@@ -11,3 +11,6 @@ runapp.sh
 .#*
 websettings.sh
 webtlsweb.sh
+server.crt
+server.key
+
