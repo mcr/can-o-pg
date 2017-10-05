@@ -2,7 +2,7 @@
 
 ServerRoot=@TOPDIR@
 ScriptDir=$ServerRoot/@SCRIPTDIR@
-source ${ScriptDir}/websettings.sh
+. ${ScriptDir}/websettings.sh
 
 # 363 = 443 - 80
 PORT=$(($($ScriptDir/portnum.sh) + 363))

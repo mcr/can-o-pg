@@ -64,6 +64,7 @@ LoadModule authz_host_module                  @APACHE2_MODDIR@/mod_authz_host.so
 LoadModule authn_file_module                  @APACHE2_MODDIR@/mod_authn_file.so
 LoadModule authz_core_module                  @APACHE2_MODDIR@/mod_authz_core.so
 LoadModule authz_user_module                  @APACHE2_MODDIR@/mod_authz_user.so
+LoadModule socache_shmcb_module               @APACHE2_MODDIR@/mod_socache_shmcb.so
 
 <IfModule !mod_env.c>
 	LoadModule env_module                   @APACHE2_MODDIR@/mod_env.so
@@ -410,6 +411,9 @@ LoadModule passenger_module /usr/lib/apache2/modules/mod_passenger.so
   PassengerRoot /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini
   PassengerDefaultRuby /usr/local/rvm/wrappers/ruby-2.4.1/ruby
 </IfModule>
+
+ 	SSLSessionCache		shmcb:/tmp/ssl_scache(512000)
+	SSLSessionCacheTimeout  300
 
 <VirtualHost *>
 	ServerAdmin webmaster@localhost
