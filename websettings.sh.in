@@ -1,0 +1,23 @@
+WEBSERVER=${WEBSERVER-@WEBSERVER@}
+
+if [ ! -x ${WEBSERVER} ]; then
+	if [ -x /usr/sbin/httpd2 ]; then
+		WEBSERVER=/usr/sbin/httpd2
+	else
+		echo NO web server found at $WEBSERVER
+		exit 10
+	fi
+fi
+
+if [ -d /usr/share/phppgadmin ]; then
+    mkdir -p $ServerRoot/run/phppgadmin
+    (cd $ServerRoot/run/phppgadmin;
+        ln -f -s /usr/share/phppgadmin/* .
+        rm -f conf
+        mkdir -p conf
+        cp $ScriptDir/php/conf/config.inc.php conf )
+fi
+
+
+mkdir -p $ServerRoot/run/lock/apache2
+mkdir -p $ServerRoot/run/log/apache2
