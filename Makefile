@@ -141,6 +141,8 @@ ${SCRIPTDIR}/database.yml: ${SCRIPTDIR}/database.yml.in Makefile
 		${SCRIPTDIR}/database.yml.in >${SCRIPTDIR}/database.yml
 	@echo You can enable by: cp ${SCRIPTDIR}/database.yml ${APPDIR}/config/database.yml
 
+${SCRIPTDIR}/runtlsweb.sh:: ${SCRIPTDIR}/websettings.sh
+
 clean:
 	@rm -f ${SCRIPTDIR}/database.yml ${SCRIPTDIR}/bootstrap.sql
 	@rm -f ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php
@@ -148,6 +150,9 @@ clean:
 
 apache: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runapp.sh ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php httpd.conf
 	${SCRIPTDIR}/runweb.sh
+
+apachetls: ${SCRIPTDIR}/apache2.conf ${SCRIPTDIR}/runapp.sh ${SCRIPTDIR}/runweb.sh ${SCRIPTDIR}/php.ini ${SCRIPTDIR}/php/conf/config.inc.php httpd.conf ${SCRIPTDIR}/runtlsweb.sh
+	${SCRIPTDIR}/runtlsweb.sh
 
 apachestop: ${SCRIPTDIR}/shutit.sh
 	${SCRIPTDIR}/shutit.sh
