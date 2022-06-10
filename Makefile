@@ -45,6 +45,7 @@ SEDFILE=sed \
 export LANG=C
 export LC_TIME=C
 export DATABASE
+export OUTFILE
 
 -include can-o-pg.settings
 SYSTEMPORT=$(shell ${SCRIPTDIR}/portnum.sh )
