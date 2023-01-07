@@ -5,9 +5,9 @@ POSTGRESQLlib=/usr/lib/postgresql
 # Fedora puts it here.
 if [ -x /usr/bin/initdb ]; then echo /usr/bin; exit; fi
 
-for pgdir in $(/bin/ls -1d ${POSTGRESQLlib}/1* ${POSTGRESQLlib}/9.* ${POSTGRESQLlib}/8.* 2>/dev/null | sort -nr)
+for pgdir in $(cd ${POSTGRESQLlib} && ls -1 | sort -nr)
 do
-	if [ -x ${pgdir}/bin/initdb ]; then echo ${pgdir}/bin; exit; fi
+	if [ -x ${POSTGRESQLlib}/${pgdir}/bin/initdb ]; then echo ${POSTGRESQLlib}/${pgdir}/bin; exit; fi
 done
 
 echo WHERE IS POSTGRESQL; exit 2
